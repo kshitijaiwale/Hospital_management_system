@@ -11,11 +11,11 @@ The system is designed with a domain-driven approach, separating distinct busine
    - JWT-based authentication
    - Role-based access control (ADMIN, DOCTOR, RECEPTIONIST, PATIENT)
    - Handles staff registration and secure logins.
-2. **Patient Management (`com.hospital.app.patient`)** — *[PENDING]*
-   - Patient onboarding, profiles, and historical timelines.
-3. **Appointment Scheduling (`com.hospital.app.appointment`)** — *[PENDING]*
+2. **Patient Management (`com.hospital.app.patient`)** — **[COMPLETED]**
+   - Patient onboarding, profiles, emergency contact details, and audit history.
+3. **Appointment Scheduling (`com.hospital.app.appointment`)** — **[COMPLETED]**
    - Booking, rescheduling, and daily schedules.
-4. **Treatment & Consultation (`com.hospital.app.treatment`)** — *[PENDING]*
+4. **Treatment & Consultation (`com.hospital.app.treatment`)** — **[COMPLETED]**
    - Treatment cases, doctor consultations, prescriptions, and follow-ups.
 5. **Billing & Invoices (`com.hospital.app.billing`)** — *[PENDING]*
    - Invoicing, payment tracking.
@@ -49,8 +49,17 @@ The system is designed with a domain-driven approach, separating distinct busine
 - [x] Exposed `/api/v1/auth/login` (Permit All) and `/api/v1/users` (ADMIN only).
 - [x] Automated Testing: Wrote and passed comprehensive unit and integration tests (16/16 passing) including repository JPA tests, Mockito service tests, and MockMvc security flow tests.
 
-### Phase 3: Patient Module ⏳
-- *Up next:* We will implement the Patient domain including creation, profile management, and role-mapping for newly registered patients.
+### Phase 3: Patient Module ✅
+- [x] Implemented JPA Auditing support (`BaseEntity` + `JpaAuditingConfig`).
+- [x] Created `BloodGroup` and `PatientStatus` enums.
+- [x] Built the `Patient` domain entity, custom `PatientRepository` and mapper.
+- [x] Defined transactional registration/onboarding services with automatic chronological Medical Record Number (MRN) generation.
+- [x] Created `PatientSecurity` to evaluate resource ownership in `@PreAuthorize` annotations.
+- [x] Implemented `PatientController` protecting search/update/retrieval paths.
+- [x] Passed 24 new unit and integration/security tests for the Patient module.
+
+### Phase 4: Appointment Scheduling ✅
+- [x] Implemented daily schedule management, booking, rescheduling, and cancellations for patient appointments.
 
 ## 🏃 Getting Started
 
