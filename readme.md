@@ -61,6 +61,13 @@ The system is designed with a domain-driven approach, separating distinct busine
 ### Phase 4: Appointment Scheduling ✅
 - [x] Implemented daily schedule management, booking, rescheduling, and cancellations for patient appointments.
 
+### Phase 5: Treatment & Consultation ✅
+- [x] Implemented `TreatmentCase`, `Consultation`, `Prescription`, and `FollowUp` entities with strong relational integrity.
+- [x] Enforced robust case management validation (e.g., active vs closed treatment case restrictions).
+- [x] Integrated Consultations directly with the Appointment system to seamlessly auto-complete linked visits.
+- [x] Developed an optimized, single-transaction bulk creation endpoint for `Prescription` to match clinical workflows perfectly.
+- [x] Secured all service layer endpoints utilizing strict `DOCTOR`, `ADMIN`, and `RECEPTIONIST` Role-Based Access Controls.
+
 ## 🏃 Getting Started
 
 ### Prerequisites
