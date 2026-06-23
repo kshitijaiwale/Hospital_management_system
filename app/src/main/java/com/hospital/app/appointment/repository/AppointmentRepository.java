@@ -15,6 +15,7 @@ import java.util.UUID;
 public interface AppointmentRepository extends JpaRepository<Appointment, UUID> {
 
     List<Appointment> findByPatientPatientIdOrderByAppointmentDateTimeDesc(UUID patientId);
+    long countByAppointmentDateTimeBetween(LocalDateTime start, LocalDateTime end);
 
     List<Appointment> findByAppointmentDateTimeBetweenOrderByAppointmentDateTimeAsc(
             LocalDateTime start, LocalDateTime end);
