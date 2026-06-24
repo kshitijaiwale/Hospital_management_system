@@ -17,8 +17,8 @@ The system is designed with a domain-driven approach, separating distinct busine
    - Booking, rescheduling, and daily schedules.
 4. **Treatment & Consultation (`com.hospital.app.treatment`)** — **[COMPLETED]**
    - Treatment cases, doctor consultations, prescriptions, and follow-ups.
-5. **Billing & Invoices (`com.hospital.app.billing`)** — *[PENDING]*
-   - Invoicing, payment tracking.
+5. **Billing & Invoices (`com.hospital.app.billing`)** — **[COMPLETED]**
+   - Invoicing, payment tracking, partial payments handling.
 6. **Document Management & Reporting (`com.hospital.app.document` / `com.hospital.app.reporting`)** — **[COMPLETED]**
    - Secure medical document uploads and retrievals, timeline aggregation, and dashboards.
 
@@ -67,6 +67,12 @@ The system is designed with a domain-driven approach, separating distinct busine
 - [x] Integrated Consultations directly with the Appointment system to seamlessly auto-complete linked visits.
 - [x] Developed an optimized, single-transaction bulk creation endpoint for `Prescription` to match clinical workflows perfectly.
 - [x] Secured all service layer endpoints utilizing strict `DOCTOR`, `ADMIN`, and `RECEPTIONIST` Role-Based Access Controls.
+
+### Phase 6: Billing & Invoicing ✅
+- [x] Implemented manual invoice generation with `CreateInvoiceRequest`.
+- [x] Supported partial payments processing, exposing `paidAmount` and `remainingAmount` directly to the client.
+- [x] Separated `InvoiceStatus` (`PARTIALLY_PAID`, `PAID`, `PENDING`) and `PaymentStatus` to ensure strict financial accounting.
+- [x] Secured all billing access strictly for `RECEPTIONIST` and `ADMIN`.
 
 ### Phase 7: Document Management & Reporting ✅
 - [x] Implemented `LocalFileStorageServiceImpl` (Java NIO) to handle file storage securely.

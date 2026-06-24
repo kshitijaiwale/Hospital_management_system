@@ -34,6 +34,7 @@ class PatientTimelineServiceImplTest {
     @Mock private TreatmentCaseRepository treatmentCaseRepository;
     @Mock private ConsultationRepository consultationRepository;
     @Mock private DocumentRepository documentRepository;
+    @Mock private com.hospital.app.billing.repository.InvoiceRepository invoiceRepository;
 
     @InjectMocks private PatientTimelineServiceImpl patientTimelineService;
 
@@ -63,6 +64,9 @@ class PatientTimelineServiceImplTest {
         pd.setDocumentType(DocumentType.LAB_REPORT);
         when(documentRepository.findByPatientPatientIdOrderByUploadedAtDesc(patientId))
                 .thenReturn(List.of(pd));
+
+        when(invoiceRepository.findByPatientPatientIdOrderByCreatedAtDesc(patientId))
+                .thenReturn(List.of());
 
         TimelineResponse res = patientTimelineService.getPatientTimeline(patientId);
 

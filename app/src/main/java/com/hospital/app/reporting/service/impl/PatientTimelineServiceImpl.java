@@ -29,6 +29,7 @@ public class PatientTimelineServiceImpl implements PatientTimelineService {
     private final TreatmentCaseRepository treatmentCaseRepository;
     private final ConsultationRepository consultationRepository;
     private final DocumentRepository documentRepository;
+    private final com.hospital.app.billing.repository.InvoiceRepository invoiceRepository;
 
     @Override
     @Transactional(readOnly = true)
@@ -85,6 +86,31 @@ public class PatientTimelineServiceImpl implements PatientTimelineService {
                     .description("File: " + doc.getFileName())
                     .performedBy(doc.getUploadedBy() != null ? doc.getUploadedBy().getName() : null)
                     .build());
+        });
+
+        // 5. Billing (Invoices and Payments)
+        invoiceRepository.findByPatientPatientIdOrderByCreatedAtDesc(patientId).forEach(invoice -> {
+            events.add(TimelineEvent.builder()
+                    .eventType("INVOICE")
+                    .entityId(invoice.getInvoiceId())
+                    .eventDate(invoice.getCreatedAt())
+                    .title("Invoice Generated")
+                    .description("Amount: " + invoice.getAmount() + " (" + invoice.getSourceType().name() + ")")
+                    .status(invoice.getStatus().name())
+                    .build());
+
+            if (invoice.getPayments() != null) {
+                invoice.getPayments().forEach(payment -> {
+                    events.add(TimelineEvent.builder()
+                            .eventType("PAYMENT")
+                            .entityId(payment.getPaymentId())
+                            .eventDate(payment.getPaymentDatetime())
+                            .title("Payment Recorded")
+                            .description("Mode: " + payment.getPaymentMode().name() + ", Amount: " + payment.getAmount())
+                            .status(payment.getStatus().name())
+                            .build());
+                });
+            }
         });
 
         // Sort events chronologically (newest first)
