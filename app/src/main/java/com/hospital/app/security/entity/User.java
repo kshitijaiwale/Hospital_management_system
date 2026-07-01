@@ -2,6 +2,7 @@ package com.hospital.app.security.entity;
 
 import com.hospital.app.common.base.BaseEntity;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -32,6 +33,7 @@ public class User extends BaseEntity implements UserDetails {
     @Column(name = "name", length = 100)
     private String name;
 
+    
     @Column(name = "email", unique = true, nullable = false, length = 100)
     private String email;
 

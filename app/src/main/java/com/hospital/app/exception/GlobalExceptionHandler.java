@@ -69,6 +69,27 @@ public class GlobalExceptionHandler {
                 .body(new ErrorResponse(ex.getMessage()));
     }
 
+    @ExceptionHandler(com.hospital.app.queue.exception.QueueEntryNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleQueueEntryNotFound(com.hospital.app.queue.exception.QueueEntryNotFoundException ex) {
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(new ErrorResponse(ex.getMessage()));
+    }
+
+    @ExceptionHandler(com.hospital.app.queue.exception.DuplicateCheckInException.class)
+    public ResponseEntity<ErrorResponse> handleDuplicateCheckIn(com.hospital.app.queue.exception.DuplicateCheckInException ex) {
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(new ErrorResponse(ex.getMessage()));
+    }
+
+    @ExceptionHandler(com.hospital.app.queue.exception.InvalidQueueStateException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidQueueState(com.hospital.app.queue.exception.InvalidQueueStateException ex) {
+        return ResponseEntity
+                .status(HttpStatus.UNPROCESSABLE_ENTITY)
+                .body(new ErrorResponse(ex.getMessage()));
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleValidation(MethodArgumentNotValidException ex) {
         String errors = ex.getBindingResult().getFieldErrors().stream()

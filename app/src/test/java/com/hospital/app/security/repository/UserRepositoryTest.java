@@ -14,7 +14,10 @@ import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import org.springframework.context.annotation.Import;
+
 @DataJpaTest
+@Import(com.hospital.app.common.config.JpaAuditingConfig.class)
 @DisplayName("UserRepository Integration Tests")
 class UserRepositoryTest {
 

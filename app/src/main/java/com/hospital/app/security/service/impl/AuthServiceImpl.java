@@ -9,7 +9,7 @@ import com.hospital.app.security.exception.RoleNotFoundException;
 import com.hospital.app.security.repository.RoleRepository;
 import com.hospital.app.security.repository.UserRepository;
 import com.hospital.app.security.service.AuthService;
-import lombok.RequiredArgsConstructor;
+
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -98,7 +98,9 @@ public class AuthServiceImpl implements AuthService, UserDetailsService {
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
         User user = (User) authentication.getPrincipal();
-        String token = jwtUtil.generateToken(user);
+        java.util.Map<String, Object> extraClaims = new java.util.HashMap<>();
+        extraClaims.put("roles", user.getRoles().stream().map(r -> "ROLE_" + r.getName().name()).toList());
+        String token = jwtUtil.generateToken(extraClaims, user);
         String role = user.getRoles().iterator().next().getName().name();
 
         return new AuthResponse(

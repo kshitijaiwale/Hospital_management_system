@@ -1,0 +1,23 @@
+{
+  "name": "hospital_management_system",
+  "version": "1.0.0",
+  "description": "A robust, modular, and secure backend system designed for managing hospital and clinic operations, including patient onboarding, appointments, treatments, and billing.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kshitijaiwale/Hospital_management_system.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/kshitijaiwale/Hospital_management_system/issues"
+  },
+  "homepage": "https://github.com/kshitijaiwale/Hospital_management_system#readme",
+  "dependencies": {
+    "axios": "^1.18.1",
+    "react-router-dom": "^7.18.0"
+  }
+}
