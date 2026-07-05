@@ -48,6 +48,7 @@ public class AppointmentServiceImpl implements AppointmentService {
     private final UserRepository userRepository;
     private final AppointmentMapper appointmentMapper;
     private final AppointmentProperties appointmentProperties;
+    private final com.hospital.app.billing.service.BillingService billingService;
 
     @Override
     @Transactional
@@ -76,6 +77,20 @@ public class AppointmentServiceImpl implements AppointmentService {
 
         Appointment saved = appointmentRepository.save(appointment);
         log.info("Appointment booked successfully with ID: {}", saved.getAppointmentId());
+
+        try {
+            com.hospital.app.billing.dto.request.CreateInvoiceRequest invoiceReq = com.hospital.app.billing.dto.request.CreateInvoiceRequest.builder()
+                    .patientId(patient.getPatientId())
+                    .sourceType(com.hospital.app.common.enums.InvoiceSourceType.APPOINTMENT)
+                    .sourceId(saved.getAppointmentId())
+                    .amount(new java.math.BigDecimal("500.00"))
+                    .build();
+            billingService.generateInvoice(invoiceReq);
+            log.info("Auto-generated APPOINTMENT invoice for appointment ID: {}", saved.getAppointmentId());
+        } catch (Exception e) {
+            log.error("Failed to auto-generate invoice for appointment ID: {}", saved.getAppointmentId(), e);
+            // Non-blocking: we still return the appointment
+        }
 
         return appointmentMapper.toResponse(saved);
     }

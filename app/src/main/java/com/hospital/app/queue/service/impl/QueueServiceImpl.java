@@ -31,6 +31,7 @@ public class QueueServiceImpl implements QueueService {
 
     private final QueueRepository queueRepository;
     private final AppointmentRepository appointmentRepository;
+    private final com.hospital.app.billing.repository.InvoiceRepository invoiceRepository;
     private final QueueMapper queueMapper;
 
     // ── Write operations ──────────────────────────────────────────────────────
@@ -56,6 +57,16 @@ public class QueueServiceImpl implements QueueService {
         if (queueRepository.existsByAppointmentAppointmentId(appointmentId)) {
             throw new DuplicateCheckInException(
                     "Appointment " + appointmentId + " has already been checked in");
+        }
+
+        // 3.5. Enforce Billing Constraints
+        boolean hasUnpaidDues = invoiceRepository.existsByPatientPatientIdAndStatusIn(
+                appointment.getPatient().getPatientId(),
+                List.of(com.hospital.app.common.enums.InvoiceStatus.PENDING, com.hospital.app.common.enums.InvoiceStatus.PARTIALLY_PAID)
+        );
+        if (hasUnpaidDues) {
+            throw new com.hospital.app.exception.BillingException(
+                    "Patient has unpaid dues. Please complete payment at the reception before check-in.");
         }
 
         // 4. Generate the next sequential token for today

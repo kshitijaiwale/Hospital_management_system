@@ -10,8 +10,8 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface PatientRepository extends JpaRepository<Patient, UUID> {
-
     Optional<Patient> findByUser_UserId(UUID userId);
+    Optional<Patient> findByUserEmail(String email);
 
     @Query("SELECT p FROM Patient p WHERE " +
             "LOWER(p.patientNumber) LIKE LOWER(CONCAT('%', :query, '%')) OR " +

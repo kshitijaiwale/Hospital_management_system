@@ -34,7 +34,7 @@ public class PrescriptionController {
     }
 
     @GetMapping("/consultations/{consultationId}/prescriptions")
-    @PreAuthorize("hasRole('DOCTOR') or hasRole('ADMIN') or hasRole('RECEPTIONIST')")
+    @PreAuthorize("hasRole('DOCTOR') or hasRole('ADMIN') or hasRole('RECEPTIONIST') or hasRole('PATIENT')")
     public ResponseEntity<List<PrescriptionResponse>> getPrescriptionsForConsultation(@PathVariable UUID consultationId) {
         return ResponseEntity.ok(prescriptionService.getPrescriptionsForConsultation(consultationId));
     }

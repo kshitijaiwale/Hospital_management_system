@@ -8,6 +8,7 @@ import java.util.UUID;
 
 public interface PatientService {
     PatientResponse getPatientById(UUID patientId);
+    PatientResponse getPatientByEmail(String email);
     List<PatientResponse> searchPatients(String query);
     PatientResponse updatePatient(UUID patientId, UpdatePatientRequest request);
 }

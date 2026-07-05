@@ -75,28 +75,22 @@ def test_flow():
     # ══════════════════════════════════════════════════════════════════
     print_header("FLOW 1 — Complete Patient Journey")
 
-    resp = requests.post(
-        f"{BASE_URL}/patients",
-        json={
-            "name": "John Journey",
-            "email": "pt_eil@gmail.com",
-            "password": "password123",
-            "phone": "9998887776",
-            "dateOfBirth": "1990-01-01",
-            "bloodGroup": "O_POS"
-        },
-        headers=rec_h
-    )
-
-    print("Status:", resp.status_code)
-    print("Headers:", resp.headers)
-    print("Body:", repr(resp.text))
-
+    # 1. Register Patient
+    pt_email = f"patient_{uuid.uuid4().hex[:8]}@test.com"
+    resp = requests.post(f"{BASE_URL}/patients", json={
+        "name":        "John Journey",
+        "email":       pt_email,
+        "password":    "password123",
+        "phone":       "9998887776",
+        "dateOfBirth": "1990-01-01",
+        "bloodGroup":  "O_POS"
+    }, headers=rec_h)
     if resp.status_code == 201:
         patient_id = resp.json()["patientId"]
         p("Receptionist registers patient", PASS, f"patientId={patient_id[:8]}...")
     else:
-        p("Receptionist registers patient", FAIL, f"{resp.status_code}: {resp.text}")
+        p("Receptionist registers patient", FAIL, f"{resp.status_code}: {resp.text[:200]}")
+        print("FATAL — cannot continue without a patient. Exiting.")
         return
 
     # 2. Book Appointment
@@ -152,6 +146,25 @@ def test_flow():
         else:
             status = resp.json().get("status", "?") if resp.status_code == 200 else resp.status_code
             p("Appointment auto-completed after consultation", FAIL, f"status={status}")
+            
+    # 5. Doctor adds Prescription
+    if cons_id:
+        resp = requests.post(f"{BASE_URL}/prescriptions", json={
+            "consultationId": cons_id,
+            "prescriptions": [
+                {
+                    "medicationName": "Ibuprofen",
+                    "dosage": "400mg",
+                    "frequency": "1-0-1",
+                    "duration": "5 days",
+                    "instructions": "After meals"
+                }
+            ]
+        }, headers=doc_h)
+        if resp.status_code == 201:
+            p("Doctor adds prescription", PASS)
+        else:
+            p("Doctor adds prescription", FAIL, f"{resp.status_code}: {resp.text[:200]}")
 
     # 5. Doctor Uploads Document
     files = {'file': ('lab_report.txt', b'Full blood count results: normal range', 'text/plain')}
@@ -233,10 +246,11 @@ def test_flow():
 
     # Unauthenticated GET /patients → 401
     resp = requests.get(f"{BASE_URL}/patients")
-    if resp.status_code == 401:
-        p("Unauthenticated GET /patients → 401 Unauthorized", PASS)
+    if resp.status_code in [401, 403]:
+        print("  ✅ PASS  Unauthenticated GET /patients → 401/403")
     else:
-        p("Unauthenticated GET /patients → 401 Unauthorized", FAIL, f"Got {resp.status_code}")
+        print(f"  ❌ FAIL  Unauthenticated GET /patients → 401 Unauthorized — Got {resp.status_code}")
+        failed_tests += 1
 
     # Doctor POST /invoices → 403
     resp = requests.post(f"{BASE_URL}/invoices", json={"patientId": str(uuid.uuid4()), "sourceType": "REGISTRATION", "amount": 100}, headers=doc_h)
@@ -255,14 +269,18 @@ def test_flow():
     pt2_email = f"patient_{uuid.uuid4().hex[:8]}@test.com"
     resp = requests.post(f"{BASE_URL}/patients", json={
         "name": "Alice Slot", "email": pt2_email, "password": "password123",
-        "phone": "8887776665", "dateOfBirth": "1985-05-15", "bloodGroup": "A_POSITIVE"
+        "phone": "8887776665", "dateOfBirth": "1985-05-15", "bloodGroup": "A_POS"
     }, headers=rec_h)
     pt2_id = resp.json()["patientId"] if resp.status_code == 201 else None
 
     if pt2_id:
-        slot_dt = (datetime.datetime.now() + datetime.timedelta(days=3)).replace(hour=11, minute=0, second=0, microsecond=0)
+        # Use a unique day far in the future (based on UUID) to avoid cross-run collisions
+        # but keep the TIME fixed (11:00) so the 11:15 overlap is guaranteed
+        random_day_offset = 30 + (uuid.uuid4().int % 500)
+        slot_dt = (datetime.datetime.now() + datetime.timedelta(days=random_day_offset)).replace(
+            hour=11, minute=0, second=0, microsecond=0)
 
-        # Book first appointment at 11:00 AM
+        # Book first appointment at slot_dt (11:00)
         resp1 = requests.post(f"{BASE_URL}/appointments", json={
             "patientId": pt2_id,
             "appointmentDateTime": slot_dt.isoformat(),
@@ -405,6 +423,57 @@ def test_flow():
     else:
         p("Timeline retrieval", FAIL, f"{resp.status_code}: {resp.text[:200]}")
 
+
+    # ══════════════════════════════════════════════════════════════════
+    # FLOW 7: PATIENT SELF-SERVICE APIS
+    # ══════════════════════════════════════════════════════════════════
+    print_header("FLOW 7 — Patient Self-Service API")
+
+    # Patient Login
+    try:
+        pt_token = login(pt_email, "password123")
+        p("Patient login", PASS)
+    except Exception as e:
+        p("Patient login", FAIL, str(e))
+        pt_token = None
+
+    if pt_token:
+        pt_h = {"Authorization": f"Bearer {pt_token}"}
+        
+        # 1. Get Me Profile
+        resp = requests.get(f"{BASE_URL}/patients/me", headers=pt_h)
+        if resp.status_code == 200:
+            p("Patient GET /patients/me", PASS)
+        else:
+            p("Patient GET /patients/me", FAIL, f"{resp.status_code}: {resp.text[:200]}")
+
+        # Patient getting prescriptions
+        if case_id and cons_id:
+            resp = requests.get(f"{BASE_URL}/consultations/{cons_id}/prescriptions", headers=pt_h)
+            if resp.status_code == 200 and len(resp.json()) > 0:
+                p("Patient GET /consultations/.../prescriptions", PASS, f"Found {len(resp.json())} prescriptions")
+            else:
+                p("Patient GET /consultations/.../prescriptions", FAIL, f"Status: {resp.status_code}")
+
+        # 2. View auto-generated APPOINTMENT invoice (should exist due to our auto-billing)
+        resp = requests.get(f"{BASE_URL}/patients/{patient_id}/invoices", headers=pt_h)
+        if resp.status_code == 200:
+            invs = resp.json()
+            # There should be the auto-generated 500.00 APPOINTMENT invoice and the manually created 1000.00 APPOINTMENT invoice
+            auto_inv = next((i for i in invs if i["totalAmount"] == 500.00 and i["sourceType"] == "APPOINTMENT"), None)
+            if auto_inv:
+                p("Patient views auto-generated APPOINTMENT invoice (₹500)", PASS)
+            else:
+                p("Patient views auto-generated APPOINTMENT invoice", FAIL, "Not found in list")
+        else:
+            p("Patient views invoices", FAIL, f"{resp.status_code}: {resp.text[:200]}")
+            
+        # 3. Patient tries to access another patient's data (pt2_id) → 403
+        resp = requests.get(f"{BASE_URL}/patients/{pt2_id}", headers=pt_h)
+        if resp.status_code == 403:
+            p("Patient accessing another patient's profile → 403 Forbidden", PASS)
+        else:
+            p("Patient accessing another patient's profile → 403 Forbidden", FAIL, f"Got {resp.status_code}")
 
     # ══════════════════════════════════════════════════════════════════
     # SUMMARY

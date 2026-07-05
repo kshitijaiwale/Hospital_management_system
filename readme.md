@@ -21,6 +21,8 @@ The system is designed with a domain-driven approach, separating distinct busine
    - Invoicing, payment tracking, partial payments handling.
 6. **Document Management & Reporting (`com.hospital.app.document` / `com.hospital.app.reporting`)** — **[COMPLETED]**
    - Secure medical document uploads and retrievals, timeline aggregation, and dashboards.
+7. **Queue Management (`com.hospital.app.queue`)** — **[COMPLETED]**
+   - Live tracking of checked-in patients, room assignments, and consultation queue flow.
 
 ## 🛠 Technology Stack
 - **Framework**: Spring Boot 3.x
@@ -79,6 +81,12 @@ The system is designed with a domain-driven approach, separating distinct busine
 - [x] Developed `PatientTimelineService` to unify appointments, cases, consultations, and documents into a sorted history view.
 - [x] Created role-specific dashboards (Doctor, Receptionist, Admin) with optimized JPA counting queries.
 - [x] Ensured complete test coverage, increasing the suite to 85 passing tests.
+
+### Phase 8: Patient Self-Service & Frontend App ✅
+- [x] Exposed Patient-side APIs allowing patients to securely access their own profile, appointments, invoices, and documents.
+- [x] Updated Queue Management to automatically block check-ins if the patient has unpaid invoices.
+- [x] Automated initial invoice generation (`₹500`) when an appointment is booked.
+- [x] Built modern, dynamic React/Vite Frontend Apps for Receptionists, Doctors, Admins, and Patients.
 
 ## 🏃 Getting Started
 

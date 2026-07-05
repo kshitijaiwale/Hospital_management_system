@@ -45,13 +45,13 @@ public class ConsultationController {
     }
 
     @GetMapping("/consultations/{consultationId}")
-    @PreAuthorize("hasRole('DOCTOR') or hasRole('ADMIN')")
+    @PreAuthorize("hasRole('DOCTOR') or hasRole('ADMIN') or hasRole('PATIENT')")
     public ResponseEntity<ConsultationResponse> getConsultationById(@PathVariable UUID consultationId) {
         return ResponseEntity.ok(consultationService.getConsultationById(consultationId));
     }
     
     @GetMapping("/treatment-cases/{caseId}/consultations")
-    @PreAuthorize("hasRole('DOCTOR') or hasRole('ADMIN')")
+    @PreAuthorize("hasRole('DOCTOR') or hasRole('ADMIN') or hasRole('PATIENT')")
     public ResponseEntity<List<ConsultationResponse>> getConsultationsForCase(@PathVariable UUID caseId) {
         return ResponseEntity.ok(consultationService.getConsultationsForCase(caseId));
     }

@@ -43,6 +43,13 @@ public class PatientController {
         return ResponseEntity.ok(patientService.getPatientById(patientId));
     }
 
+    @GetMapping("/me")
+    @PreAuthorize("hasRole('PATIENT')")
+    public ResponseEntity<PatientResponse> getMyProfile() {
+        org.springframework.security.core.Authentication auth = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+        return ResponseEntity.ok(patientService.getPatientByEmail(auth.getName()));
+    }
+
     @GetMapping("/search")
     @PreAuthorize("hasRole('DOCTOR') or hasRole('RECEPTIONIST')")
     public ResponseEntity<List<PatientResponse>> searchPatients(@RequestParam("query") String query) {

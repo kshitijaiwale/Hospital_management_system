@@ -35,6 +35,15 @@ public class PatientServiceImpl implements PatientService {
 
     @Override
     @Transactional(readOnly = true)
+    public PatientResponse getPatientByEmail(String email) {
+        log.info("Fetching patient profile for email: {}", email);
+        Patient patient = patientRepository.findByUserEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("Patient not found with email: " + email));
+        return patientMapper.toResponse(patient);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public List<PatientResponse> searchPatients(String query) {
         log.info("Searching patients with query: {}", query);
         return patientRepository.searchPatients(query).stream()

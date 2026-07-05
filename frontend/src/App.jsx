@@ -5,6 +5,8 @@ import Login from './pages/Login';
 import AdminDashboard from './pages/AdminDashboard';
 import ReceptionistDashboard from './pages/ReceptionistDashboard';
 import DoctorDashboard from './pages/DoctorDashboard';
+import PatientDashboard from './pages/PatientDashboard';
+import PatientRegister from './pages/PatientRegister';
 import './App.css';
 
 const ProtectedRoute = ({ children, requiredRole }) => {
@@ -55,6 +57,8 @@ function App() {
         <Layout>
             <Routes>
                 <Route path="/" element={<Login />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<PatientRegister />} />
                 <Route path="/admin/*" element={
                     <ProtectedRoute requiredRole="ROLE_ADMIN">
                         <AdminDashboard />
@@ -68,6 +72,11 @@ function App() {
                 <Route path="/doctor/*" element={
                     <ProtectedRoute requiredRole="ROLE_DOCTOR">
                         <DoctorDashboard />
+                    </ProtectedRoute>
+                } />
+                <Route path="/patient/*" element={
+                    <ProtectedRoute requiredRole="ROLE_PATIENT">
+                        <PatientDashboard />
                     </ProtectedRoute>
                 } />
             </Routes>

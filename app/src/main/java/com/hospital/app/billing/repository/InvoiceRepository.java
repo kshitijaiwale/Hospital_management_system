@@ -10,4 +10,5 @@ import java.util.UUID;
 @Repository
 public interface InvoiceRepository extends JpaRepository<Invoice, UUID> {
     List<Invoice> findByPatientPatientIdOrderByCreatedAtDesc(UUID patientId);
+    boolean existsByPatientPatientIdAndStatusIn(UUID patientId, List<com.hospital.app.common.enums.InvoiceStatus> statuses);
 }

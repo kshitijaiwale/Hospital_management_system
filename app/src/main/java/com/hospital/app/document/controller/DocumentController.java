@@ -44,16 +44,23 @@ public class DocumentController {
     }
 
     @GetMapping("/patients/{patientId}/documents")
-    @PreAuthorize("hasAnyRole('DOCTOR', 'RECEPTIONIST', 'ADMIN')")
+    @PreAuthorize("hasAnyRole('DOCTOR', 'RECEPTIONIST', 'ADMIN') or @patientSecurity.isOwner(#patientId)")
     public ResponseEntity<List<DocumentResponse>> getPatientDocuments(@PathVariable UUID patientId) {
         return ResponseEntity.ok(documentService.getPatientDocuments(patientId));
     }
 
     @GetMapping("/documents/{documentId}/download")
-    @PreAuthorize("hasAnyRole('DOCTOR', 'RECEPTIONIST', 'ADMIN')")
+    @PreAuthorize("hasAnyRole('DOCTOR', 'RECEPTIONIST', 'ADMIN', 'PATIENT')")
     public ResponseEntity<Resource> downloadDocument(@PathVariable UUID documentId, HttpServletRequest request) {
         PatientDocument document = documentRepository.findById(documentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Document not found"));
+
+        org.springframework.security.core.Authentication auth = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+        boolean isPrivileged = auth.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_DOCTOR") || a.getAuthority().equals("ROLE_RECEPTIONIST") || a.getAuthority().equals("ROLE_ADMIN"));
+        if (!isPrivileged && !document.getPatient().getUser().getEmail().equals(auth.getName())) {
+            throw new org.springframework.security.access.AccessDeniedException("Not authorized to download this document");
+        }
 
         Resource resource = fileStorageService.loadFileAsResource(document.getFilePath());
 

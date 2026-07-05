@@ -28,7 +28,7 @@ public class AppointmentController {
     private final AppointmentService appointmentService;
 
     @PostMapping
-    @PreAuthorize("hasRole('RECEPTIONIST') or hasRole('ADMIN')")
+    @PreAuthorize("hasRole('RECEPTIONIST') or hasRole('ADMIN') or @patientSecurity.isOwner(#request.patientId())")
     public ResponseEntity<AppointmentResponse> bookAppointment(
             @Valid @RequestBody CreateAppointmentRequest request
     ) {
@@ -69,7 +69,7 @@ public class AppointmentController {
     }
 
     @GetMapping("/patient/{patientId}")
-    @PreAuthorize("hasRole('DOCTOR') or hasRole('RECEPTIONIST') or hasRole('ADMIN')")
+    @PreAuthorize("hasRole('DOCTOR') or hasRole('RECEPTIONIST') or hasRole('ADMIN') or @patientSecurity.isOwner(#patientId)")
     public ResponseEntity<List<AppointmentResponse>> getAppointmentsForPatient(@PathVariable UUID patientId) {
         return ResponseEntity.ok(appointmentService.getAppointmentsForPatient(patientId));
     }

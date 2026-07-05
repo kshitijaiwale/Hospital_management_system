@@ -47,7 +47,7 @@ public class TreatmentCaseController {
     }
 
     @GetMapping("/patients/{patientId}/treatment-cases")
-    @PreAuthorize("hasRole('DOCTOR') or hasRole('RECEPTIONIST') or hasRole('ADMIN')")
+    @PreAuthorize("hasRole('DOCTOR') or hasRole('RECEPTIONIST') or hasRole('ADMIN') or @patientSecurity.isOwner(#patientId)")
     public ResponseEntity<List<TreatmentCaseResponse>> getTreatmentCasesForPatient(@PathVariable UUID patientId) {
         return ResponseEntity.ok(treatmentCaseService.getTreatmentCasesForPatient(patientId));
     }

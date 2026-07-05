@@ -15,6 +15,7 @@ const Login = () => {
             if (user.roles.includes('ROLE_ADMIN')) navigate('/admin');
             else if (user.roles.includes('ROLE_RECEPTIONIST')) navigate('/receptionist');
             else if (user.roles.includes('ROLE_DOCTOR')) navigate('/doctor');
+            else if (user.roles.includes('ROLE_PATIENT')) navigate('/patient');
         }
     }, [user, navigate]);
 
@@ -53,6 +54,9 @@ const Login = () => {
                 </div>
                 <button type="submit">Login</button>
             </form>
+            <p style={{ marginTop: '1rem', textAlign: 'center' }}>
+                New patient? <a href="/register" onClick={e => { e.preventDefault(); navigate('/register'); }} style={{ color: '#2563eb' }}>Register here</a>
+            </p>
         </div>
     );
 };
